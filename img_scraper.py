@@ -204,5 +204,70 @@ def get_imgs_autotrader(link):
 
     driver.quit()
 
-# Example call
-get_imgs_autotrader("https://www.autotrader.co.uk/car-details/202505252788913?advertising-location=at_cars&fromsra&make=&searchId=bfdd3e96-e109-4197-93ad-afd455085381&sort=relevance&utm_campaign=email&utm_medium=desktop&utm_source=share&year-to=2025")
+
+def get_imgs_cargurus(link):
+
+    driver_path = "chromedriver-win64/chromedriver.exe"
+
+    options = Options()
+    # Comment this out to see the browser (for debugging)
+    # options.add_argument('--headless')
+
+    service = Service(driver_path)
+    driver = webdriver.Chrome(service=service, options=options)
+
+    driver.get(link)
+    time.sleep(2)
+
+    # Wait for any main image to load
+    try:
+        WebDriverWait(driver, 15).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "img.vdp__photo"))
+        )
+    except:
+        print("❌ Could not find image elements.")
+        driver.quit()
+        return
+
+    # Click through image arrows to load all photos
+    for _ in range(35):  # up to 35 images
+        try:
+            next_btn = driver.find_element(By.XPATH, "//button[contains(@aria-label, 'Next image')]")
+            driver.execute_script("arguments[0].click();", next_btn)
+            time.sleep(0.5)
+        except:
+            break
+
+    # Get all image URLs
+    img_elements = driver.find_elements(By.CSS_SELECTOR, "img.vdp__photo")
+    image_urls = []
+
+    for img in img_elements:
+        url = img.get_attribute("src")
+        if url and "cargurus" in url:
+            image_urls.append(url)
+
+    image_urls = list(set(image_urls))
+    print(f"📸 Found {len(image_urls)} images.")
+
+    # Get car title to name the folder
+    try:
+        title = driver.find_element(By.CSS_SELECTOR, "h1").text
+        safe_name = re.sub(r'[^a-zA-Z0-9_-]', '_', title.strip())
+    except:
+        safe_name = "cargurus_car"
+
+    create_or_replace_dir(safe_name)
+
+    for i, url in enumerate(image_urls):
+        try:
+            response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
+            with open(f"{safe_name}/image_{i+1}.jpg", "wb") as f:
+                f.write(response.content)
+            print(f"✅ Saved image_{i+1}.jpg")
+        except Exception as e:
+            print(f"❌ Failed to download {url}: {e}")
+
+    driver.quit()
+
+get_imgs_cargurus("https://www.cargurus.co.uk/Cars/inventorylisting/viewDetailsFilterViewInventoryListing.action?sourceContext=carGurusHomePageModel&entitySelectingHelper.selectedEntity=d2412&zip=HA8+0AU#listing=154777506/FEATURED/DEFAULT")
