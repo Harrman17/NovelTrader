@@ -2,7 +2,7 @@ import time
 import os
 import requests
 import shutil
-import re
+import easyocr
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -87,8 +87,14 @@ def get_imgs(link, platform):
             print(f"✅ Saved image_{i+1}.jpg")
         except Exception as e:
             print(f"❌ Failed to download {url}: {e}")
+    #now get the numberplate
+    
+reader = easyocr.Reader(['en'])
+results = reader.readtext('car_images/image_1.jpg')
+
+for bbox, text, conf in results:
+    print(f"Detected: {text} (Confidence: {conf:.2f})")
 
 
 
-
-get_imgs("https://heycar.com/uk/auto/audi-a1-2022-25-tfsi-sport-5dr-s-tronic-6a4caec2", "heycar")
+get_imgs("https://www.ebay.co.uk/itm/236157991969?itmmeta=01JYJ3VJ6EXEKTK3TZ0VEQX1M9&hash=item36fc1cfc21:g:GsoAAOSwoYRoQW4Y&itmprp=enc%3AAQAKAAAAwMHg7L1Zz0LA5DYYmRTS30nRPIba%2F95Hkml3aVJkk9Lp825znygewRAmTx7QumDu0DCnTQhZeLL8XfZ0nIIfZ1UCE%2BItWfCxzELfmTmkt2TdVsqT9tzrQBRqTqzMpwxnEpn%2FDv%2F14Pi1KNt5IwpArs%2FPt4PkASA%2FYJO0a1eqW1t4rgrda71F8HZxrlZnW2HA1cz1L3nIhS0mCdrsmZsvXnz%2F6NBPXLwtUUu5WpLVQbYJ8khdgkT1bfShd9FPrJqsBg%3D%3D%7Ctkp%3ABk9SR6qj7sP0ZQ","ebay")
