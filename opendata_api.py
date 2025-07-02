@@ -1,50 +1,78 @@
+import requests
+import json
+
+def get_tax_band(co2):
+    bands = [
+        (0, 100, "A", 20),
+        (101, 110, "B", 20),
+        (111, 120, "C", 35),
+        (121, 130, "D", 165),
+        (131, 140, "E", 195),
+        (141, 150, "F", 215),
+        (151, 165, "G", 265),
+        (166, 175, "H", 315),
+        (176, 185, "I", 345),
+        (186, 200, "J", 395),
+        (201, 225, "K", 430),
+        (226, 255, "L", 735),
+        (256, float("inf"), "M", 760)
+    ]
+
+    for low, high, band, price in bands:
+        if low <= co2 <= high:
+            return {
+                "band": band,
+                "price": price
+            }
+    return {
+        "band": "Unknown",
+        "price": "Unknown"
+    }
+
 def data(plate):
-  import requests
-  import json
+    api_key = "VED90OpzjW79pwO6Vkt4Q8fpTeIou5ZU8Vm3a40v"
+    url = "https://driver-vehicle-licensing.api.gov.uk/vehicle-enquiry/v1/vehicles"
+    headers = {'x-api-key': api_key}
+    payload = {"registrationNumber": plate}
 
-  # Your API key
-  api_key = "VED90OpzjW79pwO6Vkt4Q8fpTeIou5ZU8Vm3a40v"
+    try:
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()
+        print("--- Success ---")
+    except requests.exceptions.HTTPError as err:
+        print("--- HTTP Error ---")
+        print(f"Status Code: {err.response.status_code}")
+        print(f"Response: {err.response.text}")
+        return
+    except requests.exceptions.RequestException as e:
+        print("--- An error occurred ---")
+        print(e)
+        return
 
-  # The API endpoint
-  url = "https://driver-vehicle-licensing.api.gov.uk/vehicle-enquiry/v1/vehicles"
+    vehicle_data = response.json()
 
-  # Get the registration number from the user
-  
+    # ✅ Add tax band and price
+    co2 = vehicle_data.get("co2Emissions", None)
+    if co2 is not None:
+        tax_info = get_tax_band(co2)
+        vehicle_data["tax_band"] = tax_info["band"]
+        vehicle_data["tax_price"] = f"£{tax_info['price']}"
+    else:
+        vehicle_data["tax_band"] = "Unknown"
+        vehicle_data["tax_price"] = "Unknown"
 
-  # Set the required headers. 'Content-Type' is handled automatically by 'requests'
-  # when using the 'json' parameter.
-  headers = {
-    'x-api-key': api_key
-  }
+    # ✅ Add engineCapacityInL
+    engine_cc = vehicle_data.get("engineCapacity", None)
+    if engine_cc is not None:
+        # Convert to litres and round to nearest 0.1
+        engine_l = round(engine_cc / 1000, 1)
+        vehicle_data["engineCapacityInL"] = f"{engine_l:.1f}L"
+    else:
+        vehicle_data["engineCapacityInL"] = "Unknown"
 
-  # Create the payload as a Python dictionary.
-  # This is the modern and correct way to do it.
-  payload = {
-    "registrationNumber": plate
-  }
+    # ✅ Final output
+    print(json.dumps(vehicle_data, indent=2, ensure_ascii=False))
+    return json.dumps(vehicle_data, indent=2, ensure_ascii=False)
 
-  # Make the POST request, passing the dictionary to the 'json' parameter
-  # requests will handle converting it to a JSON string.
-  try:
-      response = requests.post(url, headers=headers, json=payload)
-      
-      # Raise an exception if the request returned an HTTP error code (like 4xx or 5xx)
-      response.raise_for_status() 
-
-      # Print the JSON response in a readable format
-      print("--- Success ---")
-      # response.json() parses the JSON response into a Python dictionary
-      
-
-  except requests.exceptions.HTTPError as err:
-      print(f"--- HTTP Error ---")
-      print(f"Status Code: {err.response.status_code}")
-      # Try to print the error response from the API
-      print(f"Response: {err.response.text}")
-  except requests.exceptions.RequestException as e:
-      print(f"--- An error occurred ---")
-      print(e)
-  print(json.dumps(response.json(), indent=2))
-  return json.dumps(response.json(), indent=2)
-
-data("LA13KJK")
+# Example usage
+data("SH11FAX")
