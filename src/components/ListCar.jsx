@@ -28,7 +28,35 @@ function ListCar() {
 
         <div>
           <label className="block">Year of Manufacture</label>
-          <input type="text" className="border p-2 rounded w-full"/>
+          <select className="border p-2 rounded w-full">
+            <option> </option>
+            <option>2000</option>
+            <option>2001</option>
+            <option>2002</option>
+            <option>2003</option>
+            <option>2004</option>
+            <option>2005</option>
+            <option>2006</option>
+            <option>2007</option>
+            <option>2008</option>
+            <option>2009</option>
+            <option>2010</option>
+            <option>2011</option>
+            <option>2012</option>
+            <option>2013</option>
+            <option>2014</option>
+            <option>2015</option>
+            <option>2016</option>
+            <option>2017</option>
+            <option>2018</option>
+            <option>2019</option>
+            <option>2020</option>
+            <option>2021</option>
+            <option>2022</option>
+            <option>2023</option>
+            <option>2024</option>
+            <option>2025</option>
+          </select>
         </div>
 
         <div>
@@ -38,6 +66,14 @@ function ListCar() {
             <option>Blue</option>
             <option>Black</option>
             <option>Silver</option>
+            <option>Grey</option>
+            <option>White</option>
+            <option>Red</option>
+            <option>Green</option>
+            <option>Orange</option>
+            <option>Beige</option>
+            <option>Brown</option>
+            <option>Other</option>
           </select>
         </div>
         
@@ -47,9 +83,15 @@ function ListCar() {
           <label>Engine Size</label>
           <select className="border p-2 rounded w-full">
             <option> </option>
-            <option>1000</option>
-            <option>1600</option>
-            <option>2000</option>
+            <option>1.0L</option>
+            <option>1.2L</option>
+            <option>1.4L</option>
+            <option>1.6L</option>
+            <option>1.8L</option>
+            <option>2.0L</option>
+            <option>2.2L</option>
+            <option>3.0L</option>
+            <option>4.0L</option>
           </select>
         </div>
 
@@ -82,9 +124,12 @@ function ListCar() {
         <label className="font-medium">Service history</label>
         <select className="border p-2 rounded w-full">
           <option> </option>
-          <option>Petrol</option>
-          <option>Diesel</option>
-          <option>Electric</option>
+          <option>Full Service History</option>
+          <option>Partial Service History</option>
+          <option>Digital Service History</option>
+          <option>Self Service History</option>
+          <option>No Service History</option>
+          <option>Don't Know</option>
         </select>
       </div>
 
@@ -120,7 +165,10 @@ function ListCar() {
 
       <h2 className="font-bold mb-2">Price & Sale Info</h2>
       <div className="grid grid-cols-2 gap-4 mb-4">
-        <input type="text" placeholder="Price" className="border p-2 rounded" />
+        <div className="relative w-full">
+          <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500 text-sm">£</span>
+          <input type="number" placeholder="Price" className="pl-7 pr-3 py-2 border rounded-md w-full"/>
+        </div>
         <input type="text" placeholder="Location" className="border p-2 rounded" />
       </div>
 
