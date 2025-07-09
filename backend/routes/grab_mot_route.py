@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from services.mot_service import get_mot_data
+from services.grab_mot import get_mot_data
 
 mot_blueprint = Blueprint('mot', __name__)
 

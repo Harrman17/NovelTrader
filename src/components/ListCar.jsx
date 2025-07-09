@@ -1,8 +1,41 @@
 import React, { useState } from "react";
 
 function ListCar() {
-  const [showMOT, setShowMOT] = useState(false);
+  const [showMOT, setShowMOT] = useState(false)
+  const [motData, setMotData] = useState()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState()
+  const [registrationNumber, setRegistrationNumber] = useState("")
 
+
+  async function fetchMotHistory(registration) {
+    setLoading(true)
+    setError(null)
+
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/mot', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ registration }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to fetch MOT data');
+      }
+  
+      const data = await response.json();
+      setMotData(data);
+      setShowMOT(true); // Automatically show MOT history after fetch
+    } catch (error) {
+      console.error(error);
+      setError("Could not fetch MOT data. Please try again.");
+      setMotData(null);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="p-6 max-w-3xl mx-auto bg-white rounded-md">
@@ -13,8 +46,10 @@ function ListCar() {
           type="text"
           placeholder="Enter your number plate"
           className="flex-1 border border-gray-300 p-2 rounded"
+          value={registrationNumber}
+          onChange={(e) => setRegistrationNumber(e.target.value)}
         />
-        <button className="bg-blue-600 text-white px-4 py-2 rounded">Look up</button>
+        <button className="bg-blue-600 text-white px-4 py-2 rounded " onClick={() => fetchMotHistory(registrationNumber)}>Look up</button>
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-4">
@@ -156,10 +191,11 @@ function ListCar() {
         </button>
         {showMOT && (
           <div className="mt-2 p-3 border rounded bg-gray-50 text-sm">
-            {/* Replace with actual MOT info or fetch dynamically */}
-            <p>✅ Passed: 12 March 2024</p>
-            <p>❌ Advisory: Rear brake pads close to limit</p>
-            <p>✅ Passed: 18 March 2023</p>
+            {motData && (
+              <pre className="whitespace-pre-wrap bg-gray-100 p-4 rounded text-sm overflow-auto">
+                {JSON.stringify(motData, null, 2)}
+              </pre>
+            )}
           </div>
         )}
       </div>
