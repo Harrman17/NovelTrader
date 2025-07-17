@@ -191,11 +191,7 @@ function ListCar() {
         </button>
         {showMOT && (
           <div className="mt-2 p-3 border rounded bg-gray-50 text-sm">
-            {motData && (
-              <pre className="whitespace-pre-wrap bg-gray-100 p-4 rounded text-sm overflow-auto">
-                {JSON.stringify(motData, null, 2)}
-              </pre>
-            )}
+            {motData}
           </div>
         )}
       </div>
